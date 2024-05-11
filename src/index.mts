@@ -1,30 +1,33 @@
-import { chromium } from "playwright";
-import { z } from "zod";
-import OpenAI from "openai";
-import LLMScraper from "llm-scraper";
+import { chromium } from 'playwright';
+import { z } from 'zod';
+import OpenAI from 'openai';
+import LLMScraper from 'llm-scraper';
 
 const model = new OpenAI({
-  apiKey: process.env["OPENAI_API_KEY"],
+  apiKey: process.env['OPENAI_API_KEY'],
 });
 const browser = await chromium.launch();
 const scraper = new LLMScraper(browser, model);
 
 const schema = z.object({
-  list: z.array(
-    z.object({
-      title: z.string(),
-      at: z.string(),
-      up: z.number(),
-      time: z.string(),
-    })
-  ),
+  list: z
+    .array(
+      z.object({
+        title: z.string(),
+        at: z.string(),
+        up: z.number(),
+        time: z.string(),
+      })
+    )
+    .length(5),
 });
 
-const urls = ["https://www.echojs.com/"];
+const urls = ['https://www.echojs.com/'];
 
 const pages = await scraper.run(urls, {
+  model: 'text-embedding-3-small',
   schema,
-  mode: "html",
+  mode: 'html',
   closeOnFinish: true,
 });
 
